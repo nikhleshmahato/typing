@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Key Practice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <style>
+        :root {
+            --bg: #dde6ee;
+            --ink: #23313c;
+            --muted: #5d6f7d;
+            --glow: #6a3df0;
+            --ok: #12a37f;
+            --bad: #d6264a;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #16212b;
+                --ink: #9db3c4;
+                --muted: #7e93a3;
+                --glow: #9a7bff;
+                --ok: #2fd1a6;
+                --bad: #ff5c7c
+            }
+        }
+
+        html {
+            height: 100%
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2vw;
+        }
+
+        .bar {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center
+        }
+
+        label {
+            font-size: 15px;
+            color: var(--muted)
+        }
+
+        select {
+            font: inherit;
+            font-size: 17px;
+            color: var(--ink);
+            background: transparent;
+            border: 2px solid var(--ink);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        select:focus-visible {
+            outline: 3px solid var(--glow);
+            outline-offset: 2px
+        }
+
+        .stats {
+            font-size: 15px;
+            color: var(--muted);
+            display: flex;
+            gap: 20px
+        }
+
+        .stats b {
+            color: var(--ink);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums
+        }
+
+        #kb {
+            --u: min(calc(96vw/15), calc(96vh/5));
+            --u: min(calc(96vw/15), calc(96dvh/5));
+            display: flex;
+            flex-direction: column;
+            align-items: center
+        }
+
+        .row {
+            display: flex
+        }
+
+        .key {
+            width: calc(var(--u)*var(--w) - 6px);
+            height: calc(var(--u) - 6px);
+            margin: 3px;
+            border: 2px solid var(--ink);
+            border-radius: calc(var(--u)*.16);
+            transition: background .12s, box-shadow .12s, transform .08s, border-color .12s;
+        }
+
+        .key.down {
+            background: color-mix(in srgb, var(--ink) 22%, transparent);
+            transform: translateY(2px)
+        }
+
+        .key.target {
+            background: var(--glow);
+            border-color: var(--glow);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--glow) 28%, transparent), 0 0 26px 6px color-mix(in srgb, var(--glow) 60%, transparent);
+            animation: pulse 1.1s ease-in-out infinite;
+        }
+
+        .key {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: calc(var(--u)*.45);
+            color: #fff
+        }
+
+        .key.ok {
+            background: var(--ok);
+            border-color: var(--ok);
+            animation: none
+        }
+
+        .key.bad {
+            background: var(--bad);
+            border-color: var(--bad);
+            animation: shake .25s
+        }
+
+        @keyframes pulse {
+            50% {
+                box-shadow: 0 0 0 7px color-mix(in srgb, var(--glow) 18%, transparent), 0 0 36px 10px color-mix(in srgb, var(--glow) 70%, transparent)
+            }
+        }
+
+        @keyframes shake {
+            25% {
+                translate: -3px 0
+            }
+
+            75% {
+                translate: 3px 0
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+
+            .key.target,
+            .key.bad {
+                animation: none
+            }
+
+            .key {
+                transition: none
+            }
+        }
+
+        .hint {
+            font-size: 14px;
+            color: var(--muted);
+            text-align: center;
+            max-width: 46ch
+        }
+    </style>
+</head>
+
+<body>
+    <div id="kb" aria-label="Keyboard"></div>
+
+    <script>
+        (function () {
+            const L = "QWERTYUIOP".split(""), M = "ASDFGHJKL".split(""), B = "ZXCVBNM".split("");
+            const k = (code, base, shift, w) => ({ code, base, shift, w: w || 1 });
+            const rows = [
+                [k("Backquote", "`", "~"), ...[..."1234567890"].map((d, i) => k("Digit" + d, d, "!@#$%^&*()"[i])),
+                k("Minus", "-", "_"), k("Equal", "=", "+"), k("Backspace", null, null, 2)],
+                [k("Tab", null, null, 1.5), ...L.map(c => k("Key" + c, c.toLowerCase(), c)),
+                k("BracketLeft", "[", "{"), k("BracketRight", "]", "}"), k("Backslash", "\\", "|", 1.5)],
+                [k("CapsLock", null, null, 1.75), ...M.map(c => k("Key" + c, c.toLowerCase(), c)),
+                k("Semicolon", ";", ":"), k("Quote", "'", '"'), k("Enter", null, null, 2.25)],
+                [k("ShiftLeft", null, null, 2.25), ...B.map(c => k("Key" + c, c.toLowerCase(), c)),
+                k("Comma", ",", "<"), k("Period", ".", ">"), k("Slash", "/", "?"), k("ShiftRight", null, null, 2.75)],
+                [k("ControlLeft", null, null, 1.25), k("MetaLeft", null, null, 1.25), k("AltLeft", null, null, 1.25),
+                k("Space", " ", " ", 6.25),
+                k("AltRight", null, null, 1.25), k("MetaRight", null, null, 1.25), k("ContextMenu", null, null, 1.25), k("ControlRight", null, null, 1.25)]
+            ];
+
+            const kb = document.getElementById("kb"), els = {}, byChar = {};
+            rows.forEach((r, ri) => {
+                const row = document.createElement("div"); row.className = "row";
+                let x = 0;
+                r.forEach(key => {
+                    const e = document.createElement("div");
+                    e.className = "key"; e.style.setProperty("--w", key.w);
+                    row.appendChild(e); els[key.code] = e;
+                    key.x = x + key.w / 2; x += key.w;
+                    if (key.base && key.code !== "Space") {
+                        byChar[key.base] = { code: key.code, shift: false, x: key.x, row: ri };
+                        if (key.shift !== key.base) byChar[key.shift] = { code: key.code, shift: true, x: key.x, row: ri };
+                    }
+                });
+                kb.appendChild(row);
+            });
+
+            const isLetter = c => /[a-z]/i.test(c), isDigit = c => /[0-9]/.test(c);
+            const sets = {
+                letters: () => Object.keys(byChar).filter(c => /[a-z]/.test(c)),
+                caps: () => Object.keys(byChar).filter(c => /[A-Z]/.test(c)),
+                numbers: () => Object.keys(byChar).filter(isDigit),
+                symbols: () => Object.keys(byChar).filter(c => !isLetter(c) && !isDigit(c) && !byChar[c].shift),
+                shiftsym: () => Object.keys(byChar).filter(c => !isLetter(c) && byChar[c].shift),
+                home: () => [..."asdfghjkl;'"],
+                all: () => Object.keys(byChar)
+            };
+
+            let pool = [], target = null, shiftCode = null, ok = 0, tries = 0, streak = 0, locked = false;
+
+            function clearTarget() {
+                document.querySelectorAll(".key.target").forEach(e => e.classList.remove("target"));
+                document.querySelectorAll(".key").forEach(e => e.textContent = "");
+            }
+            function next() {
+                clearTarget(); locked = false;
+                let c; do { c = pool[Math.floor(Math.random() * pool.length)]; } while (c === target && pool.length > 1);
+                target = c;
+                const info = byChar[c];
+                els[info.code].classList.add("target");
+                els[info.code].textContent = c;
+                shiftCode = null;
+                if (info.shift) {
+                    shiftCode = info.x < 7.5 ? "ShiftRight" : "ShiftLeft";
+                    els[shiftCode].classList.add("target");
+                }
+            }
+            function setPool() { pool = sets.all(); target = null; next(); }
+
+            function flash(el, cls) {
+                el.classList.remove("ok", "bad"); void el.offsetWidth; el.classList.add(cls);
+                setTimeout(() => el.classList.remove(cls), cls === "ok" ? 160 : 260);
+            }
+
+
+            window.addEventListener("keydown", e => {
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
+                if (e.key.length === 1 || ["Tab", "Backspace", "Enter"].includes(e.key)) e.preventDefault();
+                const el = els[e.code]; if (el) el.classList.add("down");
+                if (["Shift", "Control", "Alt", "Meta", "CapsLock"].includes(e.key) || e.repeat || locked) return;
+                tries++;
+                if (e.key === target) {
+                    ok++; streak++; locked = true;
+                    const t = els[byChar[target].code];
+                    t.classList.remove("target"); flash(t, "ok");
+                    setTimeout(next, 150);
+                } else {
+                    streak = 0;
+                    if (el) flash(el, "bad");
+                }
+            });
+            window.addEventListener("keyup", e => { const el = els[e.code]; if (el) el.classList.remove("down"); });
+            window.addEventListener("blur", () => document.querySelectorAll(".key.down").forEach(e => e.classList.remove("down")));
+
+            setPool();
+        })();
+    </script>
+</body>
+
+</html>
